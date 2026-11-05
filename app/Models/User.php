@@ -45,11 +45,6 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
         'two_factor_recovery_codes',
     ];
 
-    public function clients(): HasMany
-    {
-        return $this->hasMany(Client::class);
-    }
-
     protected function casts(): array
     {
         return [
