@@ -24,4 +24,11 @@ class CategoryFactory extends Factory
             'name' => fake()->word(),
         ];
     }
+
+    public function forUser(User $user): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'user_id' => $user->getKey(),
+        ]);
+    }
 }

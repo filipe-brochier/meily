@@ -23,10 +23,13 @@ class TransactionFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'client_id' => Client::factory(),
-            'offering_id' => Offering::factory(),
-            'category_id' => Category::factory(),
             'type' => fake()->randomElement(['income', 'expense']),
+            'client_id' => fn (array $attributes) => Client::factory()->state(['user_id' => $attributes['user_id']]),
+            'offering_id' => fn (array $attributes) => Offering::factory()->state(['user_id' => $attributes['user_id']]),
+            'category_id' => fn (array $attributes) => Category::factory()->state([
+                'user_id' => $attributes['user_id'],
+                'type' => $attributes['type'],
+            ]),
             'status' => fake()->randomElement(['paid', 'pending', 'canceled']),
             'description' => fake()->sentence(),
             'amount' => fake()->randomFloat(2, 0, 99999999),
@@ -35,5 +38,12 @@ class TransactionFactory extends Factory
             'due_date' => fake()->optional()->date(),
             'paid_at' => fake()->optional()->date(),
         ];
+    }
+
+    public function forUser(User $user): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'user_id' => $user->getKey(),
+        ]);
     }
 }

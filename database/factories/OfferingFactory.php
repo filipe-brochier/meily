@@ -27,4 +27,11 @@ class OfferingFactory extends Factory
             'active' => fake()->boolean(),
         ];
     }
+
+    public function forUser(User $user): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'user_id' => $user->getKey(),
+        ]);
+    }
 }
