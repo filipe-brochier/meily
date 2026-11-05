@@ -2,11 +2,48 @@ import type { SVGAttributes } from 'react';
 
 export default function AppLogoIcon(props: SVGAttributes<SVGElement>) {
     return (
-        <svg {...props} viewBox="0 0 40 42" xmlns="http://www.w3.org/2000/svg">
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            role="img"
+            aria-labelledby="title"
+        >
+            <title id="title">Meily</title>
+            <defs>
+                <linearGradient id="bg" x1=".12" y1=".05" x2=".9" y2=".95">
+                    <stop stop-color="#a000ff" />
+                    <stop offset=".52" stop-color="#2510d9" />
+                    <stop offset="1" stop-color="#0878ff" />
+                </linearGradient>
+                <linearGradient id="bars" x1="0" y1="0" x2="0" y2="1">
+                    <stop stop-color="#e9baff" />
+                    <stop offset="1" stop-color="#725bff" stop-opacity=".12" />
+                </linearGradient>
+                <linearGradient id="arrow" x1=".1" y1=".9" x2=".95" y2=".2">
+                    <stop stop-color="#00e8c0" />
+                    <stop offset="1" stop-color="#00ffab" />
+                </linearGradient>
+            </defs>
+            <rect
+                x="8"
+                y="8"
+                width="496"
+                height="496"
+                rx="112"
+                fill="url(#bg)"
+            />
+            <g fill="url(#bars)">
+                <path d="M275 248a23 23 0 0 1 23-23h16a23 23 0 0 1 23 23v72h-62z" />
+                <path d="M337 211a23 23 0 0 1 23-23h16a23 23 0 0 1 23 23v96h-62z" />
+                <path d="M399 172a23 23 0 0 1 23-23h16a23 23 0 0 1 23 23v112h-62z" />
+            </g>
             <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M17.2 5.63325L8.6 0.855469L0 5.63325V32.1434L16.2 41.1434L32.4 32.1434V23.699L40 19.4767V9.85547L31.4 5.07769L22.8 9.85547V18.2999L17.2 21.411V5.63325ZM38 18.2999L32.4 21.411V15.2545L38 12.1434V18.2999ZM36.9409 10.4439L31.4 13.5221L25.8591 10.4439L31.4 7.36561L36.9409 10.4439ZM24.8 18.2999V12.1434L30.4 15.2545V21.411L24.8 18.2999ZM23.8 20.0323L29.3409 23.1105L16.2 30.411L10.6591 27.3328L23.8 20.0323ZM7.6 27.9212L15.2 32.1434V38.2999L2 30.9666V7.92116L7.6 11.0323V27.9212ZM8.6 9.29991L3.05913 6.22165L8.6 3.14339L14.1409 6.22165L8.6 9.29991ZM30.4 24.8101L17.2 32.1434V38.2999L30.4 30.9666V24.8101ZM9.6 11.0323L15.2 7.92117V22.5221L9.6 25.6333V11.0323Z"
+                fill="#fff"
+                d="M101 362 113 278c6-42 30-65 69-65 25 0 45 10 58 29 13-19 34-29 61-29 44 0 70 29 64 74l-10 72-57 38 14-103c3-20-5-31-21-31-15 0-25 10-28 30l-15 91h-43l14-91c3-20-4-30-19-30-16 0-26 11-29 31l-14 90h-42c-11 0-16-8-14-22z"
+            />
+            <path
+                fill="url(#arrow)"
+                d="M126 393c91 25 180 20 256-10 36-14 64-34 89-60l-25-14 71-34c10-5 19 2 16 13l-17 78-18-21c-33 37-71 65-116 84-81 34-172 38-256 12z"
             />
         </svg>
     );

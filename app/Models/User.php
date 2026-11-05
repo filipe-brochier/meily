@@ -45,7 +45,6 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
         'two_factor_recovery_codes',
     ];
 
-
     protected function casts(): array
     {
         return [
