@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, Clock, CreditCard, FolderGit2, LayoutGrid, Package, Users } from 'lucide-react';
+import { BookOpen, CalendarDays, Clock, CreditCard, FolderGit2, LayoutGrid, Package, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { index as clientsIndex } from '@/routes/clients';
+import { index as eventsIndex } from '@/routes/events';
 import { index as offeringsIndex } from '@/routes/offerings';
 import { create as transactionsCreate, index as transactionsIndex } from '@/routes/transactions';
 import type { NavItem } from '@/types';
@@ -34,6 +35,11 @@ const mainNavItems: NavItem[] = [
         title: 'Produtos e serviços',
         href: offeringsIndex(),
         icon: Package,
+    },
+    {
+        title: 'Agenda',
+        href: eventsIndex(),
+        icon: CalendarDays,
     },
     {
         title: 'Novo lançamento',

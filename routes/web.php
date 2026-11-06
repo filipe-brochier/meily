@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\OfferingController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +15,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('clients', ClientController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::resource('offerings', OfferingController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    Route::resource('events', EventController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::resource('transactions', TransactionController::class)->only(['index', 'create', 'store']);
 });

@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             ClientSeeder::class,
             OfferingSeeder::class,
             TransactionSeeder::class,
+            EventSeeder::class,
         ]);
     }
 }
