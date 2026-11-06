@@ -1,5 +1,5 @@
 import { Form, Head, Link } from '@inertiajs/react';
-import { ArrowDownRight, ArrowUpRight, Check, Info } from 'lucide-react';
+import { ArrowDownRight, ArrowRight, ArrowUpRight, Check, Info } from 'lucide-react';
 import { useState } from 'react';
 import TransactionController from '@/actions/App/Http/Controllers/TransactionController';
 import InputError from '@/components/input-error';
@@ -441,6 +441,13 @@ export default function TransactionsCreate(props: Props) {
                         Registre suas movimentações assim que elas acontecerem.
                         Assim, seu saldo estará sempre atualizado.
                     </p>
+                    <Link
+                        href={TransactionController.index.url()}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                    >
+                        Ver meu histórico
+                        <ArrowRight className="size-3.5" />
+                    </Link>
                 </aside>
             </div>
         </>

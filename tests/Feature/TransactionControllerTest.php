@@ -3,6 +3,7 @@
 use App\Models\Category;
 use App\Models\Client;
 use App\Models\Offering;
+use App\Models\Transaction;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -20,6 +21,7 @@ function validTransactionPayload(User $user, array $overrides = []): array
 }
 
 test('guests are redirected to the login page', function () {
+    $this->get(route('transactions.index'))->assertRedirect(route('login'));
     $this->get(route('transactions.create'))->assertRedirect(route('login'));
     $this->post(route('transactions.store'))->assertRedirect(route('login'));
 });
@@ -44,6 +46,129 @@ describe('create', function () {
                 ->has('clients', 1)
                 ->has('offerings', 1)
                 ->where('today', now()->toDateString()));
+    });
+});
+
+describe('index', function () {
+    function historyTransaction(User $user, Category $category, array $attributes = []): Transaction
+    {
+        return Transaction::factory()->forUser($user)->create([
+            'type' => $category->type,
+            'category_id' => $category->id,
+            'client_id' => null,
+            'offering_id' => null,
+            'status' => 'paid',
+            'amount' => '100.00',
+            'happened_on' => '2026-05-20',
+            ...$attributes,
+        ]);
+    }
+
+    it('lists only the authenticated user transactions, newest first', function () {
+        $user = User::factory()->create();
+        $income = Category::factory()->forUser($user)->create(['type' => 'income', 'name' => 'Serviços']);
+        historyTransaction($user, $income, ['description' => 'Antiga', 'happened_on' => '2026-05-01']);
+        historyTransaction($user, $income, ['description' => 'Recente', 'happened_on' => '2026-05-20']);
+        $other = Category::factory()->create(['type' => 'income']);
+        historyTransaction($other->user, $other, ['description' => 'Alheia']);
+
+        $this->actingAs($user)
+            ->get(route('transactions.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('transactions/index')
+                ->has('transactions.data', 2)
+                ->where('transactions.data.0.description', 'Recente')
+                ->where('transactions.data.0.category.name', 'Serviços')
+                ->where('transactions.data.1.description', 'Antiga'));
+    });
+
+    it('computes the balance ignoring canceled transactions', function () {
+        $user = User::factory()->create();
+        $income = Category::factory()->forUser($user)->create(['type' => 'income', 'name' => 'Serviços']);
+        $expense = Category::factory()->forUser($user)->create(['type' => 'expense', 'name' => 'Materiais']);
+        historyTransaction($user, $income, ['amount' => '500.00']);
+        historyTransaction($user, $income, ['amount' => '50.50', 'status' => 'pending']);
+        historyTransaction($user, $income, ['amount' => '999.00', 'status' => 'canceled']);
+        historyTransaction($user, $expense, ['amount' => '120.25']);
+
+        $this->actingAs($user)
+            ->get(route('transactions.index'))
+            ->assertInertia(fn (Assert $page) => $page->where('balance', '430.25'));
+    });
+
+    it('filters by type and computes the balance of the filtered set', function () {
+        $user = User::factory()->create();
+        $income = Category::factory()->forUser($user)->create(['type' => 'income', 'name' => 'Serviços']);
+        $expense = Category::factory()->forUser($user)->create(['type' => 'expense', 'name' => 'Materiais']);
+        historyTransaction($user, $income, ['amount' => '500.00']);
+        historyTransaction($user, $expense, ['amount' => '120.00']);
+
+        $this->actingAs($user)
+            ->get(route('transactions.index', ['type' => 'expense']))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('transactions.data', 1)
+                ->where('transactions.data.0.type', 'expense')
+                ->where('balance', '-120.00')
+                ->where('type', 'expense'));
+    });
+
+    it('ignores an invalid type filter', function () {
+        $user = User::factory()->create();
+        $income = Category::factory()->forUser($user)->create(['type' => 'income']);
+        historyTransaction($user, $income);
+
+        $this->actingAs($user)
+            ->get(route('transactions.index', ['type' => 'bogus']))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('transactions.data', 1)
+                ->where('type', null));
+    });
+
+    it('searches by description or category name', function () {
+        $user = User::factory()->create();
+        $services = Category::factory()->forUser($user)->create(['type' => 'income', 'name' => 'Serviços']);
+        $materials = Category::factory()->forUser($user)->create(['type' => 'expense', 'name' => 'Materiais']);
+        historyTransaction($user, $services, ['description' => 'Instalação de rede']);
+        historyTransaction($user, $materials, ['description' => 'Compra de cabos']);
+
+        $this->actingAs($user)
+            ->get(route('transactions.index', ['search' => 'rede']))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('transactions.data', 1)
+                ->where('transactions.data.0.description', 'Instalação de rede'));
+
+        $this->actingAs($user)
+            ->get(route('transactions.index', ['search' => 'Materiais']))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('transactions.data', 1)
+                ->where('transactions.data.0.description', 'Compra de cabos'));
+    });
+
+    it('treats LIKE wildcards in the search as literal characters', function () {
+        $user = User::factory()->create();
+        $income = Category::factory()->forUser($user)->create(['type' => 'income']);
+        historyTransaction($user, $income, ['description' => 'Outro lançamento']);
+
+        $this->actingAs($user)
+            ->get(route('transactions.index', ['search' => '%']))
+            ->assertInertia(fn (Assert $page) => $page->has('transactions.data', 0));
+    });
+
+    it('paginates the results', function () {
+        $user = User::factory()->create();
+        $income = Category::factory()->forUser($user)->create(['type' => 'income']);
+        Transaction::factory()->count(16)->forUser($user)->create([
+            'type' => 'income',
+            'category_id' => $income->id,
+            'client_id' => null,
+            'offering_id' => null,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('transactions.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('transactions.data', 15)
+                ->where('transactions.total', 16));
     });
 });
 

@@ -14,7 +14,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('offerings', OfferingController::class)->only(['index', 'store', 'update', 'destroy']);
 
-    Route::resource('transactions', TransactionController::class)->only(['create', 'store']);
+    Route::resource('transactions', TransactionController::class)->only(['index', 'create', 'store']);
 });
 
 require __DIR__.'/settings.php';
