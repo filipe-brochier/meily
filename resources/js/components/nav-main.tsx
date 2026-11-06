@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { ChevronRight } from 'lucide-react';
 import {
     SidebarGroup,
     SidebarGroupLabel,
@@ -13,23 +14,33 @@ export function NavMain({ items }: { items: NavItem[] }) {
     const { isCurrentUrl } = useCurrentUrl();
 
     return (
-        <SidebarGroup className="px-2 py-0">
-            <SidebarGroupLabel>Plataforma</SidebarGroupLabel>
-            <SidebarMenu>
-                {items.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton
-                            asChild
-                            isActive={isCurrentUrl(item.href)}
-                            tooltip={{ children: item.title }}
-                        >
-                            <Link href={item.href} prefetch>
-                                {item.icon && <item.icon />}
-                                <span>{item.title}</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                ))}
+        <SidebarGroup className="px-3 py-0 group-data-[collapsible=icon]:px-2">
+            <SidebarGroupLabel className="text-[11px] font-semibold tracking-widest uppercase">
+                Menu principal
+            </SidebarGroupLabel>
+            <SidebarMenu className="gap-1">
+                {items.map((item) => {
+                    const isActive = isCurrentUrl(item.href);
+
+                    return (
+                        <SidebarMenuItem key={item.title}>
+                            <SidebarMenuButton
+                                asChild
+                                isActive={isActive}
+                                tooltip={{ children: item.title }}
+                                className="h-10 rounded-lg px-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2!"
+                            >
+                                <Link href={item.href} prefetch>
+                                    {item.icon && <item.icon />}
+                                    <span>{item.title}</span>
+                                    {isActive && (
+                                        <ChevronRight className="ml-auto" />
+                                    )}
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    );
+                })}
             </SidebarMenu>
         </SidebarGroup>
     );

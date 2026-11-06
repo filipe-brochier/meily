@@ -340,7 +340,7 @@ Navigate to a new page immediately without waiting for the server response. The 
 ```react
 import { Link } from '@inertiajs/react'
 
-<Link href="/dashboard" component="Dashboard">Dashboard</Link>
+<Link href="/dashboard" component="Dashboard">Visão geral</Link>
 
 <Link
     href="/posts/1"

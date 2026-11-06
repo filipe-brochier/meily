@@ -11,17 +11,17 @@ export default function AppLogoIcon(props: SVGAttributes<SVGElement>) {
             <title id="title">Meily</title>
             <defs>
                 <linearGradient id="bg" x1=".12" y1=".05" x2=".9" y2=".95">
-                    <stop stop-color="#a000ff" />
-                    <stop offset=".52" stop-color="#2510d9" />
-                    <stop offset="1" stop-color="#0878ff" />
+                    <stop stopColor="#a000ff" />
+                    <stop offset=".52" stopColor="#2510d9" />
+                    <stop offset="1" stopColor="#0878ff" />
                 </linearGradient>
                 <linearGradient id="bars" x1="0" y1="0" x2="0" y2="1">
-                    <stop stop-color="#e9baff" />
-                    <stop offset="1" stop-color="#725bff" stop-opacity=".12" />
+                    <stop stopColor="#e9baff" />
+                    <stop offset="1" stopColor="#725bff" stopOpacity=".12" />
                 </linearGradient>
                 <linearGradient id="arrow" x1=".1" y1=".9" x2=".95" y2=".2">
-                    <stop stop-color="#00e8c0" />
-                    <stop offset="1" stop-color="#00ffab" />
+                    <stop stopColor="#00e8c0" />
+                    <stop offset="1" stopColor="#00ffab" />
                 </linearGradient>
             </defs>
             <rect
