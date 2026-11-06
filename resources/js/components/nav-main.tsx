@@ -28,6 +28,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                                 asChild
                                 isActive={isActive}
                                 tooltip={{ children: item.title }}
+                                data-tour={item.tourId}
                                 className="h-10 rounded-lg px-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2!"
                             >
                                 <Link href={item.href} prefetch>

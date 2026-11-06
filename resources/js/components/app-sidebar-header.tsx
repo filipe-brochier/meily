@@ -1,3 +1,4 @@
+import { CircleHelp } from 'lucide-react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
@@ -18,10 +19,12 @@ export function AppSidebarHeader({
     breadcrumbs = [],
     title,
     description,
+    onStartTour,
 }: {
     breadcrumbs?: BreadcrumbItemType[];
     title?: string;
     description?: string;
+    onStartTour?: () => void;
 }) {
     return (
         <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b bg-card px-4 transition-[width,height] ease-linear md:px-6">
@@ -42,9 +45,20 @@ export function AppSidebarHeader({
                     <Breadcrumbs breadcrumbs={breadcrumbs} />
                 )}
             </div>
-            <span className="hidden shrink-0 text-xs text-muted-foreground md:block">
-                {formatToday()}
-            </span>
+            <div className="flex shrink-0 items-center gap-3">
+                <button
+                    type="button"
+                    onClick={onStartTour}
+                    data-tour="tour-button"
+                    className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                >
+                    <CircleHelp className="size-4" />
+                    <span className="hidden sm:inline">Tour guiado</span>
+                </button>
+                <span className="hidden text-xs text-muted-foreground md:block">
+                    {formatToday()}
+                </span>
+            </div>
         </header>
     );
 }

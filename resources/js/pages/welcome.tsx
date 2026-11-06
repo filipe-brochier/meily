@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from "@inertiajs/react";
+import { Head, Link, usePage } from '@inertiajs/react';
 import {
     ArrowRight,
     ArrowUpRight,
@@ -9,9 +9,9 @@ import {
     Package,
     TrendingUp,
     Users,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { dashboard, login, register } from "@/routes";
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { dashboard, login, register } from '@/routes';
 
 type Feature = {
     title: string;
@@ -21,56 +21,56 @@ type Feature = {
 
 const features: Feature[] = [
     {
-        title: "Clientes na palma da mão",
+        title: 'Clientes na palma da mão',
         description:
-            "Guarde contatos, histórico de atendimentos e observações de cada cliente em um só lugar.",
+            'Guarde contatos, histórico de atendimentos e observações de cada cliente em um só lugar.',
         icon: Users,
     },
     {
-        title: "Produtos e serviços",
+        title: 'Produtos e serviços',
         description:
-            "Cadastre o que você vende, com preços organizados, e agilize cada novo lançamento.",
+            'Cadastre o que você vende, com preços organizados, e agilize cada novo lançamento.',
         icon: Package,
     },
     {
-        title: "Agenda sem bagunça",
+        title: 'Agenda sem bagunça',
         description:
-            "Compromissos, entregas e atendimentos organizados para você nunca esquecer um cliente.",
+            'Compromissos, entregas e atendimentos organizados para você nunca esquecer um cliente.',
         icon: CalendarDays,
     },
     {
-        title: "Controle financeiro simples",
+        title: 'Controle financeiro simples',
         description:
-            "Registre entradas e saídas em segundos e acompanhe o histórico do seu negócio.",
+            'Registre entradas e saídas em segundos e acompanhe o histórico do seu negócio.',
         icon: CreditCard,
     },
     {
-        title: "Visão geral do negócio",
+        title: 'Visão geral do negócio',
         description:
-            "Um painel direto ao ponto mostra como o seu mês está andando, sem planilhas complicadas.",
+            'Um painel direto ao ponto mostra como o seu mês está andando, sem planilhas complicadas.',
         icon: LayoutGrid,
     },
     {
-        title: "Feito para o MEI",
+        title: 'Feito para o MEI',
         description:
-            "Sem termos contábeis difíceis: tudo pensado para quem toca o próprio negócio no dia a dia.",
+            'Sem termos contábeis difíceis: tudo pensado para quem toca o próprio negócio no dia a dia.',
         icon: TrendingUp,
     },
 ];
 
 const steps = [
     {
-        title: "Crie sua conta",
-        description: "Leva menos de um minuto, sem cartão de crédito.",
+        title: 'Crie sua conta',
+        description: 'Leva menos de um minuto, sem cartão de crédito.',
     },
     {
-        title: "Cadastre clientes e serviços",
-        description: "Monte a base do seu negócio com poucos cliques.",
+        title: 'Cadastre clientes e serviços',
+        description: 'Monte a base do seu negócio com poucos cliques.',
     },
     {
-        title: "Lance e acompanhe",
+        title: 'Lance e acompanhe',
         description:
-            "Registre vendas e despesas e veja os resultados crescerem.",
+            'Registre vendas e despesas e veja os resultados crescerem.',
     },
 ];
 
@@ -104,8 +104,8 @@ function DashboardPreview() {
                             style={{ height: `${height}%` }}
                             className={
                                 index === chartBars.length - 1
-                                    ? "flex-1 rounded-t-lg bg-linear-to-t from-emerald-500 to-emerald-300"
-                                    : "flex-1 rounded-t-lg bg-linear-to-t from-violet-600 to-blue-500 opacity-70"
+                                    ? 'flex-1 rounded-t-lg bg-linear-to-t from-emerald-500 to-emerald-300'
+                                    : 'flex-1 rounded-t-lg bg-linear-to-t from-violet-600 to-blue-500 opacity-70'
                             }
                         />
                     ))}
@@ -207,7 +207,7 @@ export default function Welcome() {
                                 </span>
 
                                 <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-[#0b1650] sm:text-5xl lg:text-6xl dark:text-white">
-                                    Seu negócio{" "}
+                                    Seu negócio{' '}
                                     <span className="bg-linear-to-r from-violet-600 via-blue-600 to-emerald-500 bg-clip-text text-transparent">
                                         crescendo
                                     </span>
@@ -229,8 +229,8 @@ export default function Welcome() {
                                         className="inline-flex items-center justify-center gap-2 rounded-full bg-linear-to-r from-violet-600 to-blue-600 px-7 py-3.5 font-semibold text-white shadow-xl shadow-violet-600/30 transition hover:brightness-110"
                                     >
                                         {auth.user
-                                            ? "Abrir meu painel"
-                                            : "Começar agora"}
+                                            ? 'Abrir meu painel'
+                                            : 'Começar agora'}
                                         <ArrowRight className="size-4" />
                                     </Link>
                                     {!auth.user && (
@@ -245,9 +245,9 @@ export default function Welcome() {
 
                                 <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600 dark:text-slate-400">
                                     {[
-                                        "Fácil de usar",
-                                        "Sem planilhas",
-                                        "Funciona no celular",
+                                        'Fácil de usar',
+                                        'Sem planilhas',
+                                        'Funciona no celular',
                                     ].map((item) => (
                                         <li
                                             key={item}

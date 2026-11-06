@@ -1,5 +1,14 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, CalendarDays, Clock, CreditCard, FolderGit2, LayoutGrid, Package, Users } from 'lucide-react';
+import {
+    BookOpen,
+    CalendarDays,
+    Clock,
+    CreditCard,
+    FolderGit2,
+    LayoutGrid,
+    Package,
+    Users,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -17,7 +26,10 @@ import { dashboard } from '@/routes';
 import { index as clientsIndex } from '@/routes/clients';
 import { index as eventsIndex } from '@/routes/events';
 import { index as offeringsIndex } from '@/routes/offerings';
-import { create as transactionsCreate, index as transactionsIndex } from '@/routes/transactions';
+import {
+    create as transactionsCreate,
+    index as transactionsIndex,
+} from '@/routes/transactions';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -25,31 +37,37 @@ const mainNavItems: NavItem[] = [
         title: 'Visão geral',
         href: dashboard(),
         icon: LayoutGrid,
+        tourId: 'nav-dashboard',
     },
     {
         title: 'Clientes',
         href: clientsIndex(),
         icon: Users,
+        tourId: 'nav-clients',
     },
     {
         title: 'Produtos e serviços',
         href: offeringsIndex(),
         icon: Package,
+        tourId: 'nav-offerings',
     },
     {
         title: 'Agenda',
         href: eventsIndex(),
         icon: CalendarDays,
+        tourId: 'nav-events',
     },
     {
         title: 'Novo lançamento',
         href: transactionsCreate(),
         icon: CreditCard,
+        tourId: 'nav-transactions-create',
     },
     {
         title: 'Histórico financeiro',
         href: transactionsIndex(),
         icon: Clock,
+        tourId: 'nav-transactions-index',
     },
 ];
 
