@@ -14,7 +14,12 @@ class OfferingSeeder extends Seeder
     public function run(): void
     {
         $user = User::query()->where('email', UserSeeder::TEST_USER_EMAIL)->firstOrFail();
+        $incomeCategories = $user->categories()->where('type', 'income')->get();
 
-        Offering::factory()->count(10)->forUser($user)->create();
+        Offering::factory()
+            ->count(10)
+            ->forUser($user)
+            ->state(fn () => ['category_id' => $incomeCategories->random()->getKey()])
+            ->create();
     }
 }

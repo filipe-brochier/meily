@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
 use App\Models\Offering;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,7 +21,10 @@ class OfferingFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'type' => fake()->randomElement(['product', 'service']),
+            'category_id' => fn (array $attributes) => Category::factory()->state([
+                'user_id' => $attributes['user_id'],
+                'type' => 'income',
+            ]),
             'name' => fake()->words(3, true),
             'description' => fake()->optional()->sentence(),
             'price' => fake()->randomFloat(2, 0, 99999999),
