@@ -74,15 +74,6 @@ export default function OfferingsIndex({
             <Head title="Produtos e serviços" />
 
             <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4 md:p-6">
-                <header className="space-y-1">
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        Produtos e serviços
-                    </h1>
-                    <p className="text-sm text-muted-foreground">
-                        Organize tudo o que você oferece
-                    </p>
-                </header>
-
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="relative w-full sm:max-w-sm">
                         <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -211,5 +202,6 @@ export default function OfferingsIndex({
 }
 
 OfferingsIndex.layout = {
-    breadcrumbs: [],
+    title: 'Produtos e serviços',
+    description: 'Organize tudo o que você oferece',
 };
