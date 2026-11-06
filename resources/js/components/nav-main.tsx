@@ -32,9 +32,11 @@ export function NavMain({ items }: { items: NavItem[] }) {
                             >
                                 <Link href={item.href} prefetch>
                                     {item.icon && <item.icon />}
-                                    <span>{item.title}</span>
+                                    <span className="group-data-[collapsible=icon]:hidden">
+                                        {item.title}
+                                    </span>
                                     {isActive && (
-                                        <ChevronRight className="ml-auto" />
+                                        <ChevronRight className="ml-auto group-data-[collapsible=icon]:hidden" />
                                     )}
                                 </Link>
                             </SidebarMenuButton>
