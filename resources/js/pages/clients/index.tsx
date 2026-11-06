@@ -131,6 +131,9 @@ export default function ClientsIndex({
                                         <th className="px-5 py-3 font-medium">
                                             E-mail
                                         </th>
+                                        <th className="px-5 py-3 font-medium">
+                                            Endereço
+                                        </th>
                                         <th className="px-5 py-3 text-right font-medium">
                                             Ações
                                         </th>
@@ -166,6 +169,9 @@ export default function ClientsIndex({
                                             </td>
                                             <td className="px-5 py-3 text-muted-foreground">
                                                 {client.email ?? '—'}
+                                            </td>
+                                            <td className="px-5 py-3 text-muted-foreground">
+                                                {client.address ?? '—'}
                                             </td>
                                             <td
                                                 className="px-5 py-3"

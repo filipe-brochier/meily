@@ -1,29 +1,67 @@
-// Components
 import { Form, Head } from '@inertiajs/react';
+import { REGEXP_ONLY_DIGITS } from 'input-otp';
+import { useState } from 'react';
+import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
+import {
+    InputOTP,
+    InputOTPGroup,
+    InputOTPSlot,
+} from '@/components/ui/input-otp';
 import { Spinner } from '@/components/ui/spinner';
 import { logout } from '@/routes';
-import { send } from '@/routes/verification';
+import { code as verifyCode } from '@/routes/verification';
 
-export default function VerifyEmail({ status }: { status?: string }) {
+const CODE_LENGTH = 4;
+
+export default function VerifyEmail() {
+    const [code, setCode] = useState<string>('');
+
     return (
         <>
-            <Head title="Verificação de e-mail" />
+            <Head title="Verificação de acesso" />
 
-            {status === 'verification-link-sent' && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
-                    Um novo link de verificação foi enviado para o endereço de
-                    e-mail fornecido durante o cadastro.
-                </div>
-            )}
-
-            <Form {...send.form()} className="space-y-6 text-center">
-                {({ processing }) => (
+            <Form
+                {...verifyCode.form()}
+                className="space-y-6 text-center"
+                resetOnError
+                onError={() => setCode('')}
+            >
+                {({ errors, processing }) => (
                     <>
-                        <Button disabled={processing} variant="secondary">
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                            <InputOTP
+                                name="code"
+                                maxLength={CODE_LENGTH}
+                                value={code}
+                                onChange={setCode}
+                                disabled={processing}
+                                pattern={REGEXP_ONLY_DIGITS}
+                                autoFocus
+                            >
+                                <InputOTPGroup>
+                                    {Array.from(
+                                        { length: CODE_LENGTH },
+                                        (_, index) => (
+                                            <InputOTPSlot
+                                                key={index}
+                                                index={index}
+                                            />
+                                        ),
+                                    )}
+                                </InputOTPGroup>
+                            </InputOTP>
+                            <InputError message={errors.code} />
+                        </div>
+
+                        <Button
+                            type="submit"
+                            className="w-full"
+                            disabled={processing || code.length < CODE_LENGTH}
+                        >
                             {processing && <Spinner />}
-                            Reenviar e-mail de verificação
+                            Confirmar código
                         </Button>
 
                         <TextLink
@@ -40,7 +78,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
 }
 
 VerifyEmail.layout = {
-    title: 'Verificação de e-mail',
+    title: 'Código de acesso',
     description:
-        'Por favor, verifique seu endereço de e-mail clicando no link que acabamos de enviar para você.',
+        'Digite o código de 4 dígitos que enviamos para você para liberar o seu acesso.',
 };

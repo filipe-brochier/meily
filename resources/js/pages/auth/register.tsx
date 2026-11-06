@@ -1,6 +1,8 @@
 import { Form, Head } from '@inertiajs/react';
+import { useState } from 'react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
+import PasswordStrength from '@/components/password-strength';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +16,8 @@ type Props = {
 };
 
 export default function Register({ passwordRules }: Props) {
+    const [password, setPassword] = useState('');
+
     return (
         <>
             <Head title="Criar conta" />
@@ -70,7 +74,11 @@ export default function Register({ passwordRules }: Props) {
                                     name="password"
                                     placeholder="Senha"
                                     passwordrules={passwordRules}
+                                    onChange={(event) =>
+                                        setPassword(event.target.value)
+                                    }
                                 />
+                                <PasswordStrength password={password} />
                                 <InputError message={errors.password} />
                             </div>
 

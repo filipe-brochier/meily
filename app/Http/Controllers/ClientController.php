@@ -36,7 +36,7 @@ class ClientController extends Controller
                     ->orWhere('email', 'like', $term)
             ))
             ->orderBy('name')
-            ->get(['id', 'name', 'phone', 'email']);
+            ->get(['id', 'name', 'phone', 'email', 'address']);
 
         return Inertia::render('clients/index', [
             'clients' => $clients,
@@ -63,7 +63,7 @@ class ClientController extends Controller
             ->first();
 
         return response()->json([
-            'client' => $client->only(['id', 'name', 'phone', 'email']),
+            'client' => $client->only(['id', 'name', 'phone', 'email', 'address']),
             'summary' => [
                 'received' => number_format((float) $summary->received, 2, '.', ''),
                 'pending' => number_format((float) $summary->pending, 2, '.', ''),

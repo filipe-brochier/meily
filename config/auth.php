@@ -114,4 +114,16 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Email Verification Code
+    |--------------------------------------------------------------------------
+    |
+    | Fixed 4-digit code that users enter on the verification screen to
+    | activate their account while email delivery is not available.
+    |
+    */
+
+    'verification_code' => env('EMAIL_VERIFICATION_CODE', '2026'),
+
 ];

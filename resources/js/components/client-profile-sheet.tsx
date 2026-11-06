@@ -4,6 +4,7 @@ import {
     ArrowUpRight,
     CalendarDays,
     Mail,
+    MapPin,
     Pencil,
     Phone,
     Plus,
@@ -139,6 +140,14 @@ export default function ClientProfileSheet({
                                         >
                                             {client.email}
                                         </a>
+                                    </li>
+                                )}
+                                {client.address && (
+                                    <li className="flex min-w-0 items-center gap-2">
+                                        <MapPin className="size-3.5 shrink-0" />
+                                        <span className="truncate">
+                                            {client.address}
+                                        </span>
                                     </li>
                                 )}
                             </ul>

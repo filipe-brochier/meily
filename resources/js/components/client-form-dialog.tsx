@@ -88,16 +88,18 @@ export default function ClientFormDialog({
                             </div>
 
                             <div className="grid gap-2">
-                                <RequiredLabel htmlFor="client-phone">
+                                <Label
+                                    htmlFor="client-phone"
+                                    className="text-xs font-semibold"
+                                >
                                     Telefone
-                                </RequiredLabel>
+                                </Label>
                                 <Input
                                     id="client-phone"
                                     name="phone"
                                     type="tel"
                                     defaultValue={client?.phone ?? ''}
                                     className={inputClassName}
-                                    required
                                     autoComplete="off"
                                     placeholder="(51) 99999-9999"
                                 />
@@ -105,20 +107,40 @@ export default function ClientFormDialog({
                             </div>
 
                             <div className="grid gap-2">
-                                <RequiredLabel htmlFor="client-email">
+                                <Label
+                                    htmlFor="client-email"
+                                    className="text-xs font-semibold"
+                                >
                                     E-mail
-                                </RequiredLabel>
+                                </Label>
                                 <Input
                                     id="client-email"
                                     name="email"
                                     type="email"
                                     defaultValue={client?.email ?? ''}
                                     className={inputClassName}
-                                    required
                                     autoComplete="off"
                                     placeholder="nome@email.com"
                                 />
                                 <InputError message={errors.email} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label
+                                    htmlFor="client-address"
+                                    className="text-xs font-semibold"
+                                >
+                                    Endereço
+                                </Label>
+                                <Input
+                                    id="client-address"
+                                    name="address"
+                                    defaultValue={client?.address ?? ''}
+                                    className={inputClassName}
+                                    autoComplete="off"
+                                    placeholder="Rua, número, bairro, cidade"
+                                />
+                                <InputError message={errors.address} />
                             </div>
 
                             <DialogFooter className="gap-2 border-t pt-4">

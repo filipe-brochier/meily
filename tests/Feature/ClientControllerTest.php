@@ -180,6 +180,7 @@ describe('store', function () {
                 'name' => 'Padaria Tradição',
                 'phone' => '(51) 3582-9071',
                 'email' => 'contato@padariatradicao.com',
+                'address' => 'Rua das Flores, 120, Centro',
             ])
             ->assertSessionHasNoErrors()
             ->assertRedirect(route('clients.index'));
@@ -189,17 +190,35 @@ describe('store', function () {
             'name' => 'Padaria Tradição',
             'phone' => '(51) 3582-9071',
             'email' => 'contato@padariatradicao.com',
+            'address' => 'Rua das Flores, 120, Centro',
         ]);
     });
 
-    it('requires name, phone and email', function () {
+    it('requires only the name', function () {
         $user = User::factory()->create();
 
         $this->actingAs($user)
             ->post(route('clients.store'), [])
-            ->assertSessionHasErrors(['name', 'phone', 'email']);
+            ->assertSessionHasErrors('name')
+            ->assertSessionDoesntHaveErrors(['phone', 'email', 'address']);
 
         $this->assertDatabaseCount('clients', 0);
+    });
+
+    it('creates a client with only the name', function () {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('clients.store'), ['name' => 'Cliente Avulso', 'phone' => '', 'email' => '', 'address' => ''])
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('clients', [
+            'user_id' => $user->id,
+            'name' => 'Cliente Avulso',
+            'phone' => null,
+            'email' => null,
+            'address' => null,
+        ]);
     });
 
     it('rejects an invalid email', function () {
