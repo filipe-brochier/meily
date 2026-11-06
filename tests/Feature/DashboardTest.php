@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Category;
+use App\Models\Event;
 use App\Models\Transaction;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -29,6 +30,47 @@ test('authenticated users can visit the dashboard', function () {
 
     $response = $this->get(route('dashboard'));
     $response->assertOk();
+});
+
+describe('upcoming events', function () {
+    beforeEach(function () {
+        $this->travelTo('2026-05-20 10:00:00');
+    });
+
+    it('lists only scheduled events from today onwards, soonest first', function () {
+        $user = User::factory()->create();
+        $event = fn (string $title, string $date, string $time = '09:00', string $status = 'scheduled', ?User $owner = null) => Event::factory()
+            ->forUser($owner ?? $user)
+            ->create(['title' => $title, 'date' => $date, 'start_time' => $time, 'status' => $status]);
+
+        $event('Later', '2026-05-22');
+        $event('Today late', '2026-05-20', '15:00');
+        $event('Today early', '2026-05-20', '08:00');
+        $event('Past', '2026-05-19');
+        $event('Done', '2026-05-21', '09:00', 'completed');
+        $event('Canceled', '2026-05-21', '09:00', 'canceled');
+        $event('Other user', '2026-05-21', '09:00', 'scheduled', User::factory()->create());
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('upcomingEvents', 3)
+                ->where('upcomingEvents.0.title', 'Today early')
+                ->where('upcomingEvents.1.title', 'Today late')
+                ->where('upcomingEvents.2.title', 'Later'));
+    });
+
+    it('limits the list to four events', function () {
+        $user = User::factory()->create();
+
+        foreach (range(21, 26) as $day) {
+            Event::factory()->forUser($user)->create(['date' => "2026-05-{$day}", 'status' => 'scheduled']);
+        }
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertInertia(fn (Assert $page) => $page->has('upcomingEvents', 4));
+    });
 });
 
 describe('summary', function () {

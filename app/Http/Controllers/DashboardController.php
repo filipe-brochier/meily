@@ -13,9 +13,12 @@ class DashboardController extends Controller
 
     private const RECENT_TRANSACTIONS = 5;
 
+    private const UPCOMING_EVENTS = 4;
+
     /**
      * Show the current month summary, the last months cash flow and the latest transactions.
      * Canceled transactions are ignored; pending ones count, as in the financial history.
+     * Upcoming events are the scheduled ones from today onwards.
      */
     public function __invoke(Request $request): Response
     {
@@ -63,6 +66,14 @@ class DashboardController extends Controller
                 ->orderByDesc('id')
                 ->limit(self::RECENT_TRANSACTIONS)
                 ->get(['id', 'category_id', 'type', 'status', 'description', 'amount', 'happened_on']),
+            'upcomingEvents' => $user->events()
+                ->with(['client:id,name', 'offering:id,name'])
+                ->where('status', 'scheduled')
+                ->where('date', '>=', CarbonImmutable::now()->toDateString())
+                ->orderBy('date')
+                ->orderBy('start_time')
+                ->limit(self::UPCOMING_EVENTS)
+                ->get(),
         ]);
     }
 

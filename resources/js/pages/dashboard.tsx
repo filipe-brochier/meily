@@ -3,6 +3,7 @@ import {
     ArrowDownRight,
     ArrowRight,
     ArrowUpRight,
+    CalendarDays,
     ChevronRight,
     CreditCard,
     Package,
@@ -12,6 +13,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import ClientController from '@/actions/App/Http/Controllers/ClientController';
+import EventController from '@/actions/App/Http/Controllers/EventController';
 import OfferingController from '@/actions/App/Http/Controllers/OfferingController';
 import TransactionController from '@/actions/App/Http/Controllers/TransactionController';
 import {
@@ -20,7 +22,7 @@ import {
 } from '@/components/transaction-list';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { Auth, Transaction } from '@/types';
+import type { Auth, CalendarEvent, Transaction } from '@/types';
 
 type MonthFlow = {
     month: string;
@@ -37,6 +39,7 @@ type Props = {
     };
     flow: MonthFlow[];
     recentTransactions: Transaction[];
+    upcomingEvents: CalendarEvent[];
 };
 
 const CHART_TICKS = 4;
@@ -102,6 +105,7 @@ export default function Dashboard({
     summary,
     flow,
     recentTransactions,
+    upcomingEvents,
 }: Props) {
     const { auth } = usePage<{ auth: Auth }>().props;
     const firstName = auth.user.name.split(' ')[0];
@@ -203,36 +207,119 @@ export default function Dashboard({
                     </section>
                 </div>
 
-                <section className="overflow-hidden rounded-xl border bg-card text-card-foreground shadow-xs">
-                    <header className="flex items-start justify-between gap-4 border-b px-5 py-4">
-                        <div className="space-y-0.5">
-                            <h2 className="text-sm font-medium">
-                                Movimentações recentes
-                            </h2>
-                            <p className="text-xs text-muted-foreground">
-                                Seus últimos lançamentos
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                    <section className="overflow-hidden rounded-xl border bg-card text-card-foreground shadow-xs">
+                        <header className="flex items-start justify-between gap-4 border-b px-5 py-4">
+                            <div className="space-y-0.5">
+                                <h2 className="text-sm font-medium">
+                                    Movimentações recentes
+                                </h2>
+                                <p className="text-xs text-muted-foreground">
+                                    Seus últimos lançamentos
+                                </p>
+                            </div>
+
+                            <Link
+                                href={TransactionController.index.url()}
+                                className="inline-flex items-center gap-1 text-xs font-medium whitespace-nowrap text-primary hover:underline"
+                            >
+                                Ver histórico
+                                <ArrowRight className="size-3.5" />
+                            </Link>
+                        </header>
+
+                        {recentTransactions.length === 0 ? (
+                            <p className="px-5 py-10 text-center text-sm text-muted-foreground">
+                                Você ainda não registrou nenhum lançamento.
                             </p>
-                        </div>
+                        ) : (
+                            <TransactionList
+                                transactions={recentTransactions}
+                            />
+                        )}
+                    </section>
 
-                        <Link
-                            href={TransactionController.index.url()}
-                            className="inline-flex items-center gap-1 text-xs font-medium whitespace-nowrap text-primary hover:underline"
-                        >
-                            Ver histórico
-                            <ArrowRight className="size-3.5" />
-                        </Link>
-                    </header>
-
-                    {recentTransactions.length === 0 ? (
-                        <p className="px-5 py-10 text-center text-sm text-muted-foreground">
-                            Você ainda não registrou nenhum lançamento.
-                        </p>
-                    ) : (
-                        <TransactionList transactions={recentTransactions} />
-                    )}
-                </section>
+                    <UpcomingEvents events={upcomingEvents} />
+                </div>
             </div>
         </>
+    );
+}
+
+function eventDayLabel(date: string): string {
+    const today = new Date();
+    const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+    const tomorrowKey = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+
+    if (date === todayKey) {
+        return 'Hoje';
+    }
+
+    if (date === tomorrowKey) {
+        return 'Amanhã';
+    }
+
+    return new Date(`${date}T12:00:00`)
+        .toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' })
+        .replace(/\./g, '');
+}
+
+function UpcomingEvents({ events }: { events: CalendarEvent[] }) {
+    return (
+        <section className="flex flex-col rounded-xl border bg-card p-5 text-card-foreground shadow-xs">
+            <header className="mb-3 flex items-start justify-between gap-4">
+                <div className="space-y-0.5">
+                    <h2 className="text-sm font-medium">
+                        Próximos compromissos
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                        O que vem por aí
+                    </p>
+                </div>
+
+                <Link
+                    href={EventController.index.url()}
+                    className="inline-flex items-center gap-1 text-xs font-medium whitespace-nowrap text-primary hover:underline"
+                >
+                    Ver agenda
+                    <ArrowRight className="size-3.5" />
+                </Link>
+            </header>
+
+            {events.length === 0 ? (
+                <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-8 text-center text-xs text-muted-foreground">
+                    <CalendarDays className="size-5" />
+                    Nenhum compromisso agendado.
+                </div>
+            ) : (
+                <ul className="divide-y border-t">
+                    {events.map((event) => {
+                        const details = [
+                            event.client?.name,
+                            event.offering?.name,
+                        ].filter(Boolean);
+
+                        return (
+                            <li key={event.id} className="py-3">
+                                <p className="text-[10px] font-semibold tracking-wider text-primary uppercase">
+                                    {eventDayLabel(event.date)} ·{' '}
+                                    {event.start_time.slice(0, 5)}
+                                </p>
+                                <p className="text-sm font-medium">
+                                    {event.title}
+                                </p>
+                                {details.length > 0 && (
+                                    <p className="text-xs text-muted-foreground">
+                                        {details.join(' · ')}
+                                    </p>
+                                )}
+                            </li>
+                        );
+                    })}
+                </ul>
+            )}
+        </section>
     );
 }
 
