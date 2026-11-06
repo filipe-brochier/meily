@@ -69,6 +69,15 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
         return $this->hasMany(Category::class);
     }
 
+    public function createDefaultCategories(): void
+    {
+        foreach (Category::DEFAULTS as $type => $names) {
+            foreach ($names as $name) {
+                $this->categories()->firstOrCreate(['type' => $type, 'name' => $name]);
+            }
+        }
+    }
+
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);

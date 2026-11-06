@@ -13,6 +13,14 @@ class Category extends Model
     /** @use HasFactory<CategoryFactory> */
     use HasFactory;
 
+    /**
+     * @var array<string, list<string>>
+     */
+    public const DEFAULTS = [
+        'income' => ['Serviço', 'Produto', 'Consultoria'],
+        'expense' => ['Transporte', 'Contas', 'Outros'],
+    ];
+
     protected $fillable = [
         'type',
         'name',
