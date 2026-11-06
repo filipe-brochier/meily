@@ -3,6 +3,7 @@ import { Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import ClientController from '@/actions/App/Http/Controllers/ClientController';
 import ClientFormDialog from '@/components/client-form-dialog';
+import ClientProfileSheet from '@/components/client-profile-sheet';
 import DeleteClientDialog from '@/components/delete-client-dialog';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,8 @@ export default function ClientsIndex({
     const [formOpen, setFormOpen] = useState(false);
     const [editingClient, setEditingClient] = useState<Client | null>(null);
     const [deletingClient, setDeletingClient] = useState<Client | null>(null);
+    const [profileClient, setProfileClient] = useState<Client | null>(null);
+    const [profileOpen, setProfileOpen] = useState(false);
     const lastSearch = useRef(search);
 
     useEffect(() => {
@@ -57,8 +60,14 @@ export default function ClientsIndex({
     }
 
     function openEdit(client: Client) {
+        setProfileOpen(false);
         setEditingClient(client);
         setFormOpen(true);
+    }
+
+    function openProfile(client: Client) {
+        setProfileClient(client);
+        setProfileOpen(true);
     }
 
     const countLabel =
@@ -129,7 +138,11 @@ export default function ClientsIndex({
                                 </thead>
                                 <tbody className="divide-y">
                                     {clients.map((client) => (
-                                        <tr key={client.id}>
+                                        <tr
+                                            key={client.id}
+                                            onClick={() => openProfile(client)}
+                                            className="cursor-pointer transition-colors hover:bg-muted/40"
+                                        >
                                             <td className="px-5 py-3">
                                                 <div className="flex items-center gap-3">
                                                     <Avatar className="size-8">
@@ -139,9 +152,13 @@ export default function ClientsIndex({
                                                             )}
                                                         </AvatarFallback>
                                                     </Avatar>
-                                                    <span className="font-medium">
+                                                    <button
+                                                        type="button"
+                                                        className="text-left font-medium hover:text-primary focus-visible:underline focus-visible:outline-hidden"
+                                                        aria-label={`Abrir ficha de ${client.name}`}
+                                                    >
                                                         {client.name}
-                                                    </span>
+                                                    </button>
                                                 </div>
                                             </td>
                                             <td className="px-5 py-3 text-muted-foreground">
@@ -150,7 +167,12 @@ export default function ClientsIndex({
                                             <td className="px-5 py-3 text-muted-foreground">
                                                 {client.email ?? '—'}
                                             </td>
-                                            <td className="px-5 py-3">
+                                            <td
+                                                className="px-5 py-3"
+                                                onClick={(event) =>
+                                                    event.stopPropagation()
+                                                }
+                                            >
                                                 <div className="flex justify-end gap-2">
                                                     <Button
                                                         variant="outline"
@@ -186,6 +208,13 @@ export default function ClientsIndex({
                     )}
                 </section>
             </div>
+
+            <ClientProfileSheet
+                client={profileClient}
+                open={profileOpen}
+                onOpenChange={setProfileOpen}
+                onEdit={openEdit}
+            />
 
             <ClientFormDialog
                 open={formOpen}

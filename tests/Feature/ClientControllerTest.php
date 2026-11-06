@@ -1,6 +1,9 @@
 <?php
 
+use App\Models\Category;
 use App\Models\Client;
+use App\Models\Event;
+use App\Models\Transaction;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -52,6 +55,118 @@ describe('index', function () {
         $this->actingAs($user)
             ->get(route('clients.index', ['search' => '%']))
             ->assertInertia(fn (Assert $page) => $page->has('clients', 0));
+    });
+});
+
+describe('show', function () {
+    function clientTransaction(User $user, Client $client, string $type, string $status, string $amount, string $date): Transaction
+    {
+        return Transaction::factory()->forUser($user)->create([
+            'client_id' => $client->id,
+            'category_id' => Category::factory()->forUser($user)->create(['type' => $type])->id,
+            'offering_id' => null,
+            'type' => $type,
+            'status' => $status,
+            'amount' => $amount,
+            'happened_on' => $date,
+        ]);
+    }
+
+    beforeEach(function () {
+        $this->travelTo('2026-05-20 10:00:00');
+    });
+
+    it('requires authentication', function () {
+        $client = Client::factory()->forUser(User::factory()->create())->create();
+
+        $this->getJson(route('clients.show', $client))->assertUnauthorized();
+    });
+
+    it('summarizes the income of the client, ignoring canceled and expense entries', function () {
+        $user = User::factory()->create();
+        $client = Client::factory()->forUser($user)->create();
+        clientTransaction($user, $client, 'income', 'paid', '100.00', '2026-05-01');
+        clientTransaction($user, $client, 'income', 'paid', '50.50', '2026-05-10');
+        clientTransaction($user, $client, 'income', 'pending', '80.00', '2026-05-18');
+        clientTransaction($user, $client, 'income', 'canceled', '999.00', '2026-05-19');
+        clientTransaction($user, $client, 'expense', 'paid', '30.00', '2026-05-12');
+        clientTransaction($user, Client::factory()->forUser($user)->create(), 'income', 'paid', '700.00', '2026-05-12');
+
+        $this->actingAs($user)
+            ->getJson(route('clients.show', $client))
+            ->assertOk()
+            ->assertJsonPath('client.id', $client->id)
+            ->assertJsonPath('summary.received', '150.50')
+            ->assertJsonPath('summary.pending', '80.00')
+            ->assertJsonPath('summary.services_count', 3)
+            ->assertJsonPath('summary.last_service_on', '2026-05-18')
+            ->assertJsonCount(5, 'transactions');
+    });
+
+    it('returns an empty profile for a client without activity', function () {
+        $user = User::factory()->create();
+        $client = Client::factory()->forUser($user)->create();
+
+        $this->actingAs($user)
+            ->getJson(route('clients.show', $client))
+            ->assertOk()
+            ->assertJsonPath('summary.received', '0.00')
+            ->assertJsonPath('summary.services_count', 0)
+            ->assertJsonPath('summary.last_service_on', null)
+            ->assertJsonCount(0, 'upcoming_events')
+            ->assertJsonCount(0, 'transactions');
+    });
+
+    it('limits and orders the latest transactions, newest first', function () {
+        $user = User::factory()->create();
+        $client = Client::factory()->forUser($user)->create();
+
+        foreach (range(1, 12) as $day) {
+            clientTransaction($user, $client, 'income', 'paid', '10.00', sprintf('2026-05-%02d', $day));
+        }
+
+        $this->actingAs($user)
+            ->getJson(route('clients.show', $client))
+            ->assertJsonCount(10, 'transactions')
+            ->assertJsonPath('transactions.0.happened_on', fn (string $date) => str_starts_with($date, '2026-05-12'));
+    });
+
+    it('lists only scheduled upcoming events of the client, soonest first', function () {
+        $user = User::factory()->create();
+        $client = Client::factory()->forUser($user)->create();
+        $event = fn (string $title, string $date, string $status = 'scheduled', ?Client $for = null) => Event::factory()
+            ->forUser($user)
+            ->create(['client_id' => ($for ?? $client)->id, 'title' => $title, 'date' => $date, 'status' => $status]);
+
+        $event('Later', '2026-05-25');
+        $event('Soon', '2026-05-21');
+        $event('Past', '2026-05-19');
+        $event('Done', '2026-05-22', 'completed');
+        $event('Other client', '2026-05-22', 'scheduled', Client::factory()->forUser($user)->create());
+
+        $this->actingAs($user)
+            ->getJson(route('clients.show', $client))
+            ->assertJsonCount(2, 'upcoming_events')
+            ->assertJsonPath('upcoming_events.0.title', 'Soon')
+            ->assertJsonPath('upcoming_events.1.title', 'Later');
+    });
+
+    it('returns 404 for a client that belongs to another user', function () {
+        $client = Client::factory()->forUser(User::factory()->create())->create();
+
+        $this->actingAs(User::factory()->create())
+            ->getJson(route('clients.show', $client))
+            ->assertNotFound();
+    });
+
+    it('returns 404 for a deleted client', function () {
+        $user = User::factory()->create();
+        $client = Client::factory()->forUser($user)->create();
+        $client->delete();
+
+        $this->actingAs($user)
+            ->getJson(route('clients.show', $client))
+            ->assertNotFound();
     });
 });
 

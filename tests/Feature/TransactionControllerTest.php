@@ -54,6 +54,20 @@ describe('create', function () {
             ->get(route('transactions.create', ['type' => 'expense']))
             ->assertInertia(fn (Assert $page) => $page->where('initialType', 'expense'));
     });
+
+    it('preselects the client from the query string only when it belongs to the user', function () {
+        $user = User::factory()->create();
+        $client = Client::factory()->forUser($user)->create();
+        $foreign = Client::factory()->forUser(User::factory()->create())->create();
+
+        $this->actingAs($user)
+            ->get(route('transactions.create', ['client_id' => $client->id]))
+            ->assertInertia(fn (Assert $page) => $page->where('initialClientId', $client->id));
+
+        $this->actingAs($user)
+            ->get(route('transactions.create', ['client_id' => $foreign->id]))
+            ->assertInertia(fn (Assert $page) => $page->where('initialClientId', null));
+    });
 });
 
 describe('index', function () {

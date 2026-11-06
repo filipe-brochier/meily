@@ -12,7 +12,7 @@ Route::inertia('/', 'welcome')->name('home');
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
-    Route::resource('clients', ClientController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('clients', ClientController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
 
     Route::resource('offerings', OfferingController::class)->only(['index', 'store', 'update', 'destroy']);
 

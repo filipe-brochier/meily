@@ -75,6 +75,7 @@ class TransactionController extends Controller
                 ->get(['id', 'category_id', 'name', 'price']),
             'today' => now()->toDateString(),
             'initialType' => $request->query('type') === 'expense' ? 'expense' : 'income',
+            'initialClientId' => $user->clients()->whereKey($request->integer('client_id'))->value('id'),
         ]);
     }
 

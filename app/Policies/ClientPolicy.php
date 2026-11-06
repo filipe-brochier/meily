@@ -8,6 +8,11 @@ use Illuminate\Auth\Access\Response;
 
 class ClientPolicy
 {
+    public function view(User $user, Client $client): Response
+    {
+        return $this->ownsClient($user, $client);
+    }
+
     public function update(User $user, Client $client): Response
     {
         return $this->ownsClient($user, $client);
