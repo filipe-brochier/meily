@@ -40,6 +40,7 @@ type Props = {
     clients: TransactionClient[];
     offerings: TransactionOffering[];
     today: string;
+    initialType: TransactionType;
 };
 
 const NONE = 'none';
@@ -86,9 +87,10 @@ function TransactionForm({
     clients,
     offerings,
     today,
+    initialType,
     onSaved,
 }: Props & { onSaved: () => void }) {
-    const [type, setType] = useState<TransactionType>('income');
+    const [type, setType] = useState<TransactionType>(initialType);
     const [categoryId, setCategoryId] = useState('');
     const [clientId, setClientId] = useState(NONE);
     const [offeringId, setOfferingId] = useState(NONE);

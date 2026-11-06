@@ -45,7 +45,14 @@ describe('create', function () {
                 ->has('categories', 2)
                 ->has('clients', 1)
                 ->has('offerings', 1)
-                ->where('today', now()->toDateString()));
+                ->where('today', now()->toDateString())
+                ->where('initialType', 'income'));
+    });
+
+    it('preselects the expense type from the query string', function () {
+        $this->actingAs(User::factory()->create())
+            ->get(route('transactions.create', ['type' => 'expense']))
+            ->assertInertia(fn (Assert $page) => $page->where('initialType', 'expense'));
     });
 });
 

@@ -1,7 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
 import {
-    ArrowDownRight,
-    ArrowUpRight,
     ChevronLeft,
     ChevronRight,
     Plus,
@@ -9,17 +7,16 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import TransactionController from '@/actions/App/Http/Controllers/TransactionController';
+import {
+    TransactionList,
+    currencyFormatter,
+} from '@/components/transaction-list';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import type { Paginated, Transaction, TransactionType } from '@/types';
 
 const SEARCH_DEBOUNCE_MS = 300;
-
-const currencyFormatter = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-});
 
 const TYPE_FILTERS: { value: TransactionType | null; label: string }[] = [
     { value: null, label: 'Todos' },
@@ -32,12 +29,6 @@ const LIST_TITLES = {
     income: 'Receitas',
     expense: 'Despesas',
 };
-
-function formatDate(value: string): string {
-    const [year, month, day] = value.slice(0, 10).split('-');
-
-    return `${day}/${month}/${year}`;
-}
 
 function describeCount(total: number): string {
     return total === 1
@@ -192,23 +183,7 @@ export default function TransactionsIndex({
                                 : 'Você ainda não registrou nenhum lançamento.'}
                         </p>
                     ) : (
-                        <>
-                            <div className="hidden grid-cols-[1fr_10rem_7rem_9rem] gap-4 border-b bg-muted/40 px-5 py-2.5 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase md:grid">
-                                <span>Descrição</span>
-                                <span>Categoria</span>
-                                <span>Data</span>
-                                <span className="text-right">Valor</span>
-                            </div>
-
-                            <ul className="divide-y">
-                                {transactions.data.map((transaction) => (
-                                    <TransactionRow
-                                        key={transaction.id}
-                                        transaction={transaction}
-                                    />
-                                ))}
-                            </ul>
-                        </>
+                        <TransactionList transactions={transactions.data} />
                     )}
 
                     {(transactions.prev_page_url ||
@@ -238,84 +213,6 @@ export default function TransactionsIndex({
                 </section>
             </div>
         </>
-    );
-}
-
-function TransactionRow({ transaction }: { transaction: Transaction }) {
-    const isIncome = transaction.type === 'income';
-    const isCanceled = transaction.status === 'canceled';
-    const Icon = isIncome ? ArrowUpRight : ArrowDownRight;
-
-    return (
-        <li className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-1 px-5 py-3.5 md:grid-cols-[1fr_10rem_7rem_9rem]">
-            <div className="flex min-w-0 items-center gap-3 max-md:contents">
-                <span
-                    className={cn(
-                        'flex size-9 shrink-0 items-center justify-center rounded-lg',
-                        isIncome
-                            ? 'bg-emerald-50 text-emerald-600'
-                            : 'bg-red-50 text-red-600',
-                    )}
-                >
-                    <Icon className="size-4" />
-                </span>
-
-                <div className="min-w-0">
-                    <p
-                        className={cn(
-                            'truncate text-sm font-medium',
-                            isCanceled && 'text-muted-foreground line-through',
-                        )}
-                    >
-                        {transaction.description}
-                    </p>
-                    <p className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                        {isIncome ? 'Receita' : 'Despesa'}
-                        {transaction.status === 'pending' && (
-                            <span className="rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-700">
-                                Pendente
-                            </span>
-                        )}
-                        {isCanceled && (
-                            <span className="rounded-full bg-muted px-2 py-0.5 font-medium">
-                                Cancelado
-                            </span>
-                        )}
-                    </p>
-                </div>
-            </div>
-
-            <div className="hidden md:block">
-                {transaction.category && (
-                    <span className="inline-block max-w-full truncate rounded-full bg-muted px-2.5 py-1 text-[10px] font-medium">
-                        {transaction.category.name}
-                    </span>
-                )}
-            </div>
-
-            <p className="hidden text-xs text-muted-foreground md:block">
-                {formatDate(transaction.happened_on)}
-            </p>
-
-            <div className="text-right">
-                <p
-                    className={cn(
-                        'text-sm font-semibold whitespace-nowrap',
-                        isCanceled
-                            ? 'text-muted-foreground line-through'
-                            : isIncome
-                              ? 'text-emerald-700'
-                              : 'text-red-600',
-                    )}
-                >
-                    {isIncome ? '+' : '−'}{' '}
-                    {currencyFormatter.format(Number(transaction.amount))}
-                </p>
-                <p className="text-[10px] text-muted-foreground md:hidden">
-                    {formatDate(transaction.happened_on)}
-                </p>
-            </div>
-        </li>
     );
 }
 
