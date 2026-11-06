@@ -12,6 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('offerings', function (Blueprint $table) {
+            $table->index('user_id');
+        });
+
+        Schema::table('offerings', function (Blueprint $table) {
             $table->dropIndex(['user_id', 'type']);
             $table->dropColumn('type');
         });
@@ -25,6 +29,10 @@ return new class extends Migration
         Schema::table('offerings', function (Blueprint $table) {
             $table->enum('type', ['product', 'service'])->default('service')->after('category_id');
             $table->index(['user_id', 'type']);
+        });
+
+        Schema::table('offerings', function (Blueprint $table) {
+            $table->dropIndex(['user_id']);
         });
     }
 };
