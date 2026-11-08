@@ -194,6 +194,12 @@ function Sidebar({
             } as React.CSSProperties
           }
           side={side}
+          onInteractOutside={(event) => {
+            // Evita fechar o menu ao clicar no popover do tour guiado.
+            if (document.body.classList.contains("driver-active")) {
+              event.preventDefault()
+            }
+          }}
         >
           <div className="flex h-full w-full flex-col">{children}</div>
         </SheetContent>

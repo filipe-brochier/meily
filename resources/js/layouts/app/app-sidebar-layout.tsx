@@ -5,7 +5,7 @@ import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import { useAppTour } from '@/hooks/use-app-tour';
 import type { AppLayoutProps } from '@/types';
 
-export default function AppSidebarLayout({
+function AppSidebarLayoutContent({
     children,
     breadcrumbs = [],
     title,
@@ -14,7 +14,7 @@ export default function AppSidebarLayout({
     const startTour = useAppTour();
 
     return (
-        <AppShell variant="sidebar">
+        <>
             <AppSidebar />
             <AppContent
                 variant="sidebar"
@@ -28,6 +28,14 @@ export default function AppSidebarLayout({
                 />
                 {children}
             </AppContent>
+        </>
+    );
+}
+
+export default function AppSidebarLayout(props: AppLayoutProps) {
+    return (
+        <AppShell variant="sidebar">
+            <AppSidebarLayoutContent {...props} />
         </AppShell>
     );
 }

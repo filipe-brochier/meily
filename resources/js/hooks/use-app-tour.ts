@@ -1,8 +1,12 @@
 import { usePage } from '@inertiajs/react';
 import { driver } from 'driver.js';
-import type { DriveStep } from 'driver.js';
+import type { DriveStep, Driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { useSidebar } from '@/components/ui/sidebar';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+const SIDEBAR_TRANSITION_MS = 550;
 
 const steps: DriveStep[] = [
     {
@@ -76,26 +80,91 @@ const steps: DriveStep[] = [
     },
 ];
 
+function isSidebarStep(step: DriveStep | undefined): boolean {
+    return (
+        typeof step?.element === 'string' &&
+        step.element.startsWith('[data-tour="nav-')
+    );
+}
+
 export function useAppTour(): () => void {
     const userId = usePage().props.auth.user.id;
     const storageKey = `meily:tour-completed:${userId}`;
+    const { setOpenMobile } = useSidebar();
+    const isMobile = useIsMobile();
+    const isMobileRef = useRef(isMobile);
+
+    useEffect(() => {
+        isMobileRef.current = isMobile;
+    }, [isMobile]);
 
     const startTour = useCallback(() => {
+        const onMobile = isMobileRef.current;
+
+        // No mobile, o menu fica fechado (e fora do DOM) até ser aberto pelo tour.
         const availableSteps = steps.filter(
             (step) =>
                 typeof step.element !== 'string' ||
+                (onMobile && isSidebarStep(step)) ||
                 document.querySelector(step.element) !== null,
         );
 
+        let isSwitchingSidebar = false;
+
+        const moveTo = (activeTour: Driver, targetIndex: number) => {
+            const currentStep =
+                availableSteps[activeTour.getActiveIndex() ?? 0];
+            const targetStep = availableSteps[targetIndex];
+
+            if (
+                !targetStep ||
+                isSwitchingSidebar ||
+                !onMobile ||
+                isSidebarStep(currentStep) === isSidebarStep(targetStep)
+            ) {
+                if (targetStep && !isSwitchingSidebar) {
+                    activeTour.moveTo(targetIndex);
+                }
+
+                return;
+            }
+
+            isSwitchingSidebar = true;
+            setOpenMobile(isSidebarStep(targetStep));
+
+            window.setTimeout(() => {
+                isSwitchingSidebar = false;
+
+                if (activeTour.isActive()) {
+                    activeTour.moveTo(targetIndex);
+                }
+            }, SIDEBAR_TRANSITION_MS);
+        };
+
         const tour = driver({
             steps: availableSteps,
+            onNextClick: (_element, _step, { driver: activeTour }) => {
+                if (activeTour.isLastStep()) {
+                    activeTour.destroy();
+
+                    return;
+                }
+
+                moveTo(activeTour, (activeTour.getActiveIndex() ?? 0) + 1);
+            },
+            onPrevClick: (_element, _step, { driver: activeTour }) => {
+                moveTo(activeTour, (activeTour.getActiveIndex() ?? 0) - 1);
+            },
             popoverClass: 'meily-tour',
             showProgress: true,
             progressText: '{{current}} de {{total}}',
             nextBtnText: 'Próximo',
             prevBtnText: 'Voltar',
             doneBtnText: 'Concluir',
-            onDestroyed: () => localStorage.setItem(storageKey, '1'),
+            onDestroyed: () => {
+                localStorage.setItem(storageKey, '1');
+                setOpenMobile(false);
+            },
             onPopoverRender: (popover, { driver: activeTour }) => {
                 if (activeTour.isLastStep()) {
                     return;
@@ -113,7 +182,7 @@ export function useAppTour(): () => void {
         });
 
         tour.drive();
-    }, [storageKey]);
+    }, [storageKey, setOpenMobile]);
 
     useEffect(() => {
         if (localStorage.getItem(storageKey) !== null) {
