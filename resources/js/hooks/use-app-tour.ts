@@ -5,8 +5,11 @@ import 'driver.js/dist/driver.css';
 import { useCallback, useEffect, useRef } from 'react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-const SIDEBAR_TRANSITION_MS = 550;
+import {
+    navTourStorageKey,
+    SIDEBAR_TRANSITION_MS,
+    TOUR_POPOVER_OPTIONS,
+} from '@/lib/page-tour';
 
 const steps: DriveStep[] = [
     {
@@ -89,7 +92,7 @@ function isSidebarStep(step: DriveStep | undefined): boolean {
 
 export function useAppTour(): () => void {
     const userId = usePage().props.auth.user.id;
-    const storageKey = `meily:tour-completed:${userId}`;
+    const storageKey = navTourStorageKey(userId);
     const { setOpenMobile } = useSidebar();
     const isMobile = useIsMobile();
     const isMobileRef = useRef(isMobile);
@@ -155,12 +158,7 @@ export function useAppTour(): () => void {
             onPrevClick: (_element, _step, { driver: activeTour }) => {
                 moveTo(activeTour, (activeTour.getActiveIndex() ?? 0) - 1);
             },
-            popoverClass: 'meily-tour',
-            showProgress: true,
-            progressText: '{{current}} de {{total}}',
-            nextBtnText: 'Próximo',
-            prevBtnText: 'Voltar',
-            doneBtnText: 'Concluir',
+            ...TOUR_POPOVER_OPTIONS,
             onDestroyed: () => {
                 localStorage.setItem(storageKey, '1');
                 setOpenMobile(false);

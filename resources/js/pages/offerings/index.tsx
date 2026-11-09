@@ -75,7 +75,10 @@ export default function OfferingsIndex({
 
             <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4 md:p-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="relative w-full sm:max-w-sm">
+                    <div
+                        className="relative w-full sm:max-w-sm"
+                        data-tour="offerings-search"
+                    >
                         <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             type="search"
@@ -104,8 +107,11 @@ export default function OfferingsIndex({
                             : 'Você ainda não cadastrou nenhum produto ou serviço.'}
                     </p>
                 ) : (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {offerings.map((offering) => {
+                    <div
+                        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                        data-tour="offerings-grid"
+                    >
+                        {offerings.map((offering, index) => {
                             const dimmed = offering.active ? '' : 'opacity-60';
 
                             return (
@@ -120,7 +126,14 @@ export default function OfferingsIndex({
                                             <Package className="size-5" />
                                         </div>
 
-                                        <div className="flex gap-2">
+                                        <div
+                                            className="flex gap-2"
+                                            data-tour={
+                                                index === 0
+                                                    ? 'offerings-row-actions'
+                                                    : undefined
+                                            }
+                                        >
                                             <Button
                                                 variant="outline"
                                                 size="icon"

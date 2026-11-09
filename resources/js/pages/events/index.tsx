@@ -154,7 +154,10 @@ export default function EventsIndex({
 
             <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4 md:p-6">
                 <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-                    <section className="rounded-xl border bg-card p-4 shadow-xs md:p-5">
+                    <section
+                        className="rounded-xl border bg-card p-4 shadow-xs md:p-5"
+                        data-tour="events-calendar"
+                    >
                         <div className="mb-4 flex items-center justify-between gap-2">
                             <h2 className="text-lg font-medium">
                                 {monthLabel}
@@ -277,7 +280,10 @@ export default function EventsIndex({
                                 Nada agendado para este dia.
                             </div>
                         ) : (
-                            <ul className="flex flex-col gap-3">
+                            <ul
+                                className="flex flex-col gap-3"
+                                data-tour="events-list"
+                            >
                                 {selectedEvents.map((event) => {
                                     const badge = statusBadge[event.status];
                                     const canceled = event.status === 'canceled';

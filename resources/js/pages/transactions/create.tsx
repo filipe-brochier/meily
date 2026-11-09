@@ -155,7 +155,10 @@ function TransactionForm({
                             Tipo de movimentação
                         </span>
                         <input type="hidden" name="type" value={type} />
-                        <div className="grid gap-3 sm:grid-cols-2">
+                        <div
+                            className="grid gap-3 sm:grid-cols-2"
+                            data-tour="transaction-type"
+                        >
                             {typeOptions.map((option) => {
                                 const Icon = option.icon;
                                 const selected = type === option.value;

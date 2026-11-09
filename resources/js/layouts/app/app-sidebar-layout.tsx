@@ -1,9 +1,15 @@
+import { usePage } from '@inertiajs/react';
+import type { DriveStep } from 'driver.js';
 import { AppContent } from '@/components/app-content';
 import { AppShell } from '@/components/app-shell';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import { useAppTour } from '@/hooks/use-app-tour';
+import { usePageTour } from '@/hooks/use-page-tour';
+import { pageTours } from '@/lib/page-tours';
 import type { AppLayoutProps } from '@/types';
+
+const EMPTY_STEPS: DriveStep[] = [];
 
 function AppSidebarLayoutContent({
     children,
@@ -11,7 +17,14 @@ function AppSidebarLayoutContent({
     title,
     description,
 }: AppLayoutProps) {
-    const startTour = useAppTour();
+    const startNavTour = useAppTour();
+    const { component } = usePage();
+    const pageTour = pageTours[component];
+    const startPageTour = usePageTour(
+        pageTour?.steps ?? EMPTY_STEPS,
+        pageTour?.key ?? null,
+    );
+    const startTour = pageTour ? startPageTour : startNavTour;
 
     return (
         <>

@@ -81,7 +81,10 @@ export default function ClientsIndex({
 
             <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-4 md:p-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="relative w-full sm:max-w-sm">
+                    <div
+                        className="relative w-full sm:max-w-sm"
+                        data-tour="clients-search"
+                    >
                         <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             type="search"
@@ -118,7 +121,10 @@ export default function ClientsIndex({
                                 : 'Você ainda não cadastrou nenhum cliente.'}
                         </p>
                     ) : (
-                        <div className="overflow-x-auto">
+                        <div
+                            className="overflow-x-auto"
+                            data-tour="clients-table"
+                        >
                             <table className="w-full text-left text-sm">
                                 <thead className="border-y bg-muted/60 text-[11px] tracking-wider text-muted-foreground uppercase">
                                     <tr>
@@ -140,7 +146,7 @@ export default function ClientsIndex({
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y">
-                                    {clients.map((client) => (
+                                    {clients.map((client, index) => (
                                         <tr
                                             key={client.id}
                                             onClick={() => openProfile(client)}
@@ -177,6 +183,11 @@ export default function ClientsIndex({
                                                 className="px-5 py-3"
                                                 onClick={(event) =>
                                                     event.stopPropagation()
+                                                }
+                                                data-tour={
+                                                    index === 0
+                                                        ? 'clients-row-actions'
+                                                        : undefined
                                                 }
                                             >
                                                 <div className="flex justify-end gap-2">

@@ -110,7 +110,10 @@ export default function TransactionsIndex({
 
             <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4 md:p-6">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div className="relative w-full md:max-w-sm">
+                    <div
+                        className="relative w-full md:max-w-sm"
+                        data-tour="transactions-search"
+                    >
                         <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             type="search"
@@ -126,6 +129,7 @@ export default function TransactionsIndex({
                         role="group"
                         aria-label="Filtrar por tipo"
                         className="flex w-fit gap-1 rounded-xl border bg-card p-1"
+                        data-tour="transactions-filter"
                     >
                         {TYPE_FILTERS.map((filter) => {
                             const active = filter.value === type;
@@ -197,12 +201,14 @@ export default function TransactionsIndex({
                                 : 'Você ainda não registrou nenhum lançamento.'}
                         </p>
                     ) : (
-                        <TransactionList
-                            transactions={transactions.data}
-                            onCancel={setCancelingTransaction}
-                            onReactivate={reactivateTransaction}
-                            onDelete={setDeletingTransaction}
-                        />
+                        <div data-tour="transactions-list">
+                            <TransactionList
+                                transactions={transactions.data}
+                                onCancel={setCancelingTransaction}
+                                onReactivate={reactivateTransaction}
+                                onDelete={setDeletingTransaction}
+                            />
+                        </div>
                     )}
 
                     {(transactions.prev_page_url ||
