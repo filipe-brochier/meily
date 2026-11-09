@@ -7,14 +7,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/filipe-brochier/meily/actions/workflows/tests.yml">
-    <img src="https://github.com/filipe-brochier/meily/actions/workflows/tests.yml/badge.svg" alt="Tests">
-  </a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777BB4?logo=php&logoColor=white" alt="PHP 8.3+">
   <img src="https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white" alt="Laravel 13">
   <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black" alt="React 19">
   <img src="https://img.shields.io/badge/Inertia.js-3-9553E9?logo=inertia&logoColor=white" alt="Inertia 3">
-  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License">
 </p>
 
 ---
