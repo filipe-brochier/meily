@@ -347,3 +347,117 @@ describe('store', function () {
             ->assertSessionHasErrors(['client_id', 'offering_id']);
     });
 });
+
+describe('update', function () {
+    it('cancels a transaction, keeping it in the history', function () {
+        $user = User::factory()->create();
+        $transaction = Transaction::factory()->forUser($user)->create([
+            'status' => 'paid',
+            'paid_at' => '2026-05-20',
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('transactions.update', $transaction), ['status' => 'canceled'])
+            ->assertSessionHasNoErrors();
+
+        expect($transaction->refresh())
+            ->status->toBe('canceled')
+            ->paid_at->toBeNull();
+
+        $this->assertNotSoftDeleted($transaction);
+    });
+
+    it('reactivates a canceled transaction back to pending', function () {
+        $user = User::factory()->create();
+        $transaction = Transaction::factory()->forUser($user)->create([
+            'status' => 'canceled',
+            'paid_at' => null,
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('transactions.update', $transaction), ['status' => 'pending'])
+            ->assertSessionHasNoErrors();
+
+        expect($transaction->refresh())
+            ->status->toBe('pending')
+            ->paid_at->toBeNull();
+    });
+
+    it('sets the payment date when a transaction is marked as paid', function () {
+        $user = User::factory()->create();
+        $transaction = Transaction::factory()->forUser($user)->create([
+            'status' => 'pending',
+            'happened_on' => '2026-05-20',
+            'paid_at' => null,
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('transactions.update', $transaction), ['status' => 'paid'])
+            ->assertSessionHasNoErrors();
+
+        expect($transaction->refresh()->paid_at?->toDateString())->toBe('2026-05-20');
+    });
+
+    it('requires a valid status', function () {
+        $user = User::factory()->create();
+        $transaction = Transaction::factory()->forUser($user)->create(['status' => 'paid']);
+
+        $this->actingAs($user)
+            ->patch(route('transactions.update', $transaction), ['status' => 'refunded'])
+            ->assertSessionHasErrors('status');
+
+        expect($transaction->refresh()->status)->toBe('paid');
+    });
+
+    it('returns 404 for a transaction that belongs to another user', function () {
+        $transaction = Transaction::factory()->create(['status' => 'paid']);
+
+        $this->actingAs(User::factory()->create())
+            ->patch(route('transactions.update', $transaction), ['status' => 'canceled'])
+            ->assertNotFound();
+
+        expect($transaction->refresh()->status)->toBe('paid');
+    });
+});
+
+describe('destroy', function () {
+    it('soft deletes the transaction', function () {
+        $user = User::factory()->create();
+        $transaction = Transaction::factory()->forUser($user)->create();
+
+        $this->actingAs($user)
+            ->delete(route('transactions.destroy', $transaction))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSoftDeleted($transaction);
+    });
+
+    it('excludes soft deleted transactions from the history and the balance', function () {
+        $user = User::factory()->create();
+        $income = Category::factory()->forUser($user)->create(['type' => 'income']);
+        Transaction::factory()->forUser($user)->create([
+            'type' => 'income',
+            'category_id' => $income->id,
+            'client_id' => null,
+            'offering_id' => null,
+            'status' => 'paid',
+            'amount' => '500.00',
+        ])->delete();
+
+        $this->actingAs($user)
+            ->get(route('transactions.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('transactions.data', 0)
+                ->where('balance', '0.00'));
+    });
+
+    it('returns 404 for a transaction that belongs to another user', function () {
+        $transaction = Transaction::factory()->create();
+
+        $this->actingAs(User::factory()->create())
+            ->delete(route('transactions.destroy', $transaction))
+            ->assertNotFound();
+
+        $this->assertNotSoftDeleted($transaction);
+    });
+});

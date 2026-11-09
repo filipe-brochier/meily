@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TransactionRequest;
+use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -91,5 +94,43 @@ class TransactionController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Transaction saved.')]);
 
         return to_route('transactions.create');
+    }
+
+    /**
+     * Update a transaction's status. Used to cancel a transaction (or reverse that),
+     * keeping it in the financial history instead of deleting it.
+     */
+    public function update(Request $request, Transaction $transaction): RedirectResponse
+    {
+        Gate::authorize('update', $transaction);
+
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(['paid', 'pending', 'canceled'])],
+        ]);
+
+        $transaction->update([
+            'status' => $validated['status'],
+            'paid_at' => $validated['status'] === 'paid'
+                ? ($transaction->paid_at ?? $transaction->happened_on)
+                : null,
+        ]);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Transaction updated.')]);
+
+        return back();
+    }
+
+    /**
+     * Soft delete a transaction, removing it from the financial history entirely.
+     */
+    public function destroy(Transaction $transaction): RedirectResponse
+    {
+        Gate::authorize('delete', $transaction);
+
+        $transaction->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Transaction deleted.')]);
+
+        return back();
     }
 }

@@ -23,7 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('events', EventController::class)->only(['index', 'store', 'update', 'destroy']);
 
-    Route::resource('transactions', TransactionController::class)->only(['index', 'create', 'store']);
+    Route::resource('transactions', TransactionController::class)->only(['index', 'create', 'store', 'update', 'destroy']);
 });
 
 require __DIR__.'/settings.php';

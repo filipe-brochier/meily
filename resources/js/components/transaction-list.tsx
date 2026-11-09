@@ -1,5 +1,6 @@
-import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Ban, RotateCcw, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import type { Transaction } from '@/types';
 
 export const currencyFormatter = new Intl.NumberFormat('pt-BR', {
@@ -15,16 +16,32 @@ function formatDate(value: string): string {
 
 export function TransactionList({
     transactions,
+    onCancel,
+    onReactivate,
+    onDelete,
 }: {
     transactions: Transaction[];
+    onCancel?: (transaction: Transaction) => void;
+    onReactivate?: (transaction: Transaction) => void;
+    onDelete?: (transaction: Transaction) => void;
 }) {
+    const showActions = Boolean(onCancel || onReactivate || onDelete);
+
     return (
         <>
-            <div className="hidden grid-cols-[1fr_10rem_7rem_9rem] gap-4 border-b bg-muted/40 px-5 py-2.5 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase md:grid">
+            <div
+                className={cn(
+                    'hidden gap-4 border-b bg-muted/40 px-5 py-2.5 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase md:grid',
+                    showActions
+                        ? 'grid-cols-[1fr_10rem_7rem_9rem_7rem]'
+                        : 'grid-cols-[1fr_10rem_7rem_9rem]',
+                )}
+            >
                 <span>Descrição</span>
                 <span>Categoria</span>
                 <span>Data</span>
                 <span className="text-right">Valor</span>
+                {showActions && <span className="text-right">Ações</span>}
             </div>
 
             <ul className="divide-y">
@@ -32,6 +49,9 @@ export function TransactionList({
                     <TransactionRow
                         key={transaction.id}
                         transaction={transaction}
+                        onCancel={onCancel}
+                        onReactivate={onReactivate}
+                        onDelete={onDelete}
                     />
                 ))}
             </ul>
@@ -39,13 +59,31 @@ export function TransactionList({
     );
 }
 
-function TransactionRow({ transaction }: { transaction: Transaction }) {
+function TransactionRow({
+    transaction,
+    onCancel,
+    onReactivate,
+    onDelete,
+}: {
+    transaction: Transaction;
+    onCancel?: (transaction: Transaction) => void;
+    onReactivate?: (transaction: Transaction) => void;
+    onDelete?: (transaction: Transaction) => void;
+}) {
     const isIncome = transaction.type === 'income';
     const isCanceled = transaction.status === 'canceled';
     const Icon = isIncome ? ArrowUpRight : ArrowDownRight;
+    const showActions = Boolean(onCancel || onReactivate || onDelete);
 
     return (
-        <li className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-1 px-5 py-3.5 md:grid-cols-[1fr_10rem_7rem_9rem]">
+        <li
+            className={cn(
+                'grid items-center gap-x-4 gap-y-1 px-5 py-3.5',
+                showActions
+                    ? 'grid-cols-[auto_1fr_auto_auto] md:grid-cols-[1fr_10rem_7rem_9rem_7rem]'
+                    : 'grid-cols-[auto_1fr_auto] md:grid-cols-[1fr_10rem_7rem_9rem]',
+            )}
+        >
             <div className="flex min-w-0 items-center gap-3 max-md:contents">
                 <span
                     className={cn(
@@ -113,6 +151,44 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
                     {formatDate(transaction.happened_on)}
                 </p>
             </div>
+
+            {showActions && (
+                <div className="flex justify-end gap-2">
+                    {!isCanceled && onCancel && (
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="size-8 rounded-lg bg-card text-muted-foreground hover:text-amber-700"
+                            aria-label={`Cancelar ${transaction.description}`}
+                            onClick={() => onCancel(transaction)}
+                        >
+                            <Ban />
+                        </Button>
+                    )}
+                    {isCanceled && onReactivate && (
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="size-8 rounded-lg bg-card text-muted-foreground hover:text-primary"
+                            aria-label={`Reativar ${transaction.description}`}
+                            onClick={() => onReactivate(transaction)}
+                        >
+                            <RotateCcw />
+                        </Button>
+                    )}
+                    {onDelete && (
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="size-8 rounded-lg bg-card text-muted-foreground hover:text-destructive"
+                            aria-label={`Excluir ${transaction.description}`}
+                            onClick={() => onDelete(transaction)}
+                        >
+                            <Trash2 />
+                        </Button>
+                    )}
+                </div>
+            )}
         </li>
     );
 }

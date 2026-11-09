@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import TransactionController from '@/actions/App/Http/Controllers/TransactionController';
+import CancelTransactionDialog from '@/components/cancel-transaction-dialog';
+import DeleteTransactionDialog from '@/components/delete-transaction-dialog';
 import {
     TransactionList,
     currencyFormatter,
@@ -48,10 +50,22 @@ export default function TransactionsIndex({
     type: TransactionType | null;
 }) {
     const [query, setQuery] = useState(search);
+    const [cancelingTransaction, setCancelingTransaction] =
+        useState<Transaction | null>(null);
+    const [deletingTransaction, setDeletingTransaction] =
+        useState<Transaction | null>(null);
     const lastSearch = useRef(search);
     const currentType = useRef(type);
 
     currentType.current = type;
+
+    function reactivateTransaction(transaction: Transaction) {
+        router.patch(
+            TransactionController.update.url(transaction),
+            { status: 'pending' },
+            { preserveScroll: true },
+        );
+    }
 
     function visit(nextSearch: string, nextType: TransactionType | null) {
         const params: Record<string, string> = {};
@@ -183,7 +197,12 @@ export default function TransactionsIndex({
                                 : 'Você ainda não registrou nenhum lançamento.'}
                         </p>
                     ) : (
-                        <TransactionList transactions={transactions.data} />
+                        <TransactionList
+                            transactions={transactions.data}
+                            onCancel={setCancelingTransaction}
+                            onReactivate={reactivateTransaction}
+                            onDelete={setDeletingTransaction}
+                        />
                     )}
 
                     {(transactions.prev_page_url ||
@@ -212,6 +231,24 @@ export default function TransactionsIndex({
                     )}
                 </section>
             </div>
+
+            <CancelTransactionDialog
+                transaction={cancelingTransaction}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setCancelingTransaction(null);
+                    }
+                }}
+            />
+
+            <DeleteTransactionDialog
+                transaction={deletingTransaction}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setDeletingTransaction(null);
+                    }
+                }}
+            />
         </>
     );
 }
